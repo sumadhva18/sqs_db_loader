@@ -13,6 +13,10 @@ class Config:
     # Other config
     poll_wait_time = 10
 
+    # Input json keys
+    mandatory_keys = ("id", "mail", "name", "surname")
+    other_keys = [("route", "locations")]
+
     def __post_init__(self):
         self.queue_url = os.getenv(
             "SQS_QUEUE_URL",
