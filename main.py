@@ -9,7 +9,8 @@ def main():
     sqs_consumer = SQSConsumer()
     processor = MessageProcessor()
 
-    parsed_data = dict()
+    parsed_msgs = dict()
+    transformed_msgs = dict()
 
     while True:
         # Fetch the sqs messages
@@ -20,7 +21,14 @@ def main():
             valid_data = processor.validate(message)
 
             if valid_data:
-                parsed_data[message["MessageId"]] = valid_data
+                parsed_msgs[message["MessageId"]] = valid_data
+
+        # Transform data
+        for message_id, message in parsed_msgs.items():
+            transformed_data = processor.transform(message)
+
+            if transformed_data:
+                transformed_msgs[message_id] = transformed_data
 
 
 if __name__ == "__main__":
