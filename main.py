@@ -1,6 +1,8 @@
+import json
 import logging
 from consumer import SQSConsumer
 from processor import MessageProcessor
+from db import DatabaseLoader
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,6 +33,17 @@ def main():
 
             if transformed_data:
                 transformed_msgs[receipt_handle_id] = transformed_data
+
+        data_to_be_loaded = list()
+
+        for value in transformed_msgs.values():
+            data_to_be_loaded.append(value)
+
+        # Load the data
+        if data_to_be_loaded:
+            with DatabaseLoader() as db_loader:
+                db_loader.ensure_table()
+                db_loader.load(data_to_be_loaded)
 
 
 if __name__ == "__main__":
