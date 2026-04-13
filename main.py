@@ -45,6 +45,10 @@ def main():
                 db_loader.ensure_table()
                 db_loader.load(data_to_be_loaded)
 
+        # Delete the loaded messages from queue
+        if transformed_msgs:
+            sqs_consumer.delete_message(*transformed_msgs.keys())
+
 
 if __name__ == "__main__":
     main()
