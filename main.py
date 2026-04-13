@@ -20,15 +20,17 @@ def main():
         for message in sqs_data:
             is_valid_data = processor.validate(message)
 
-            if valid_data:
-                parsed_msgs[message["MessageId"]] = valid_data
+            if is_valid_data:
+                parsed_msgs[message["ReceiptHandle"]] = json.loads(message["Body"])
+            else:
+                sqs_consumer.delete_message(message["ReceiptHandle"])
 
         # Transform data
-        for message_id, message in parsed_msgs.items():
+        for receipt_handle_id, message in parsed_msgs.items():
             transformed_data = processor.transform(message)
 
             if transformed_data:
-                transformed_msgs[message_id] = transformed_data
+                transformed_msgs[receipt_handle_id] = transformed_data
 
 
 if __name__ == "__main__":
