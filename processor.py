@@ -20,7 +20,15 @@ class MessageProcessor:
         self.required_keys = list(self.config.mandatory_keys)
         self.required_keys.extend(list(chain.from_iterable(self.config.other_keys)))
 
-    def validate(self, message: dict) -> dict | None:
+    def validate(self, message: dict) -> bool:
+        """
+        Validates whether all the required keys are present in the message
+
+        :param message: Message to be validated
+        :type message: dict
+        :return: Returns True if the message is valid, otherwise False
+        :rtype: bool
+        """
         message_id = message.get("MessageId")
         try:
             assert message.get("Body"), (
@@ -40,10 +48,10 @@ class MessageProcessor:
                     f"Missing one of the keys {', '.join(key_pair)}"
                 )
 
-            return message_body
+            return True
         except Exception as e:
             logger.error(f"Invalid message body for the message ID: {message_id}: {e}")
-            return None
+            return False
 
     @classmethod
     def _transform_trip(cls, message: dict) -> list[dict]:
@@ -81,6 +89,31 @@ class MessageProcessor:
             ]
 
     def transform(self, message: dict) -> dict | None:
+        """
+        Transforms the given message into below format
+
+        ```
+        {
+            "id": 1,
+            "mail": "aaa@gmail.com",
+            "name": "AAA SSS",
+            "trip": [
+                {
+                    "depaure": "A",
+                    "destination": "D",
+                    "start_date": "2022-10-10 12:15:00",
+                    "end_date": "2022-10-10 13:55:00"
+                }
+            ]
+        }
+        ```
+
+        :param message: The message to be transformed
+        :type message: dict
+        :return: The output in the above format, None is case of errors
+        :rtype: dict | None
+        """
+
         try:
             return {
                 key: transform_fn(message)

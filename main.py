@@ -18,7 +18,7 @@ def main():
 
         # Validate data
         for message in sqs_data:
-            valid_data = processor.validate(message)
+            is_valid_data = processor.validate(message)
 
             if valid_data:
                 parsed_msgs[message["MessageId"]] = valid_data
