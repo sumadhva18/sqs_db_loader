@@ -11,10 +11,10 @@ def main():
     sqs_consumer = SQSConsumer()
     processor = MessageProcessor()
 
-    parsed_msgs = dict()
-    transformed_msgs = dict()
-
     while True:
+        parsed_msgs = dict()
+        transformed_msgs = dict()
+
         # Fetch the sqs messages
         sqs_data = sqs_consumer.poll()
 
