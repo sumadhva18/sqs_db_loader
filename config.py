@@ -18,9 +18,9 @@ class Config:
     other_keys = [("route", "locations")]
 
     # Database
-    database = "mydb"
-    schema = "sqs"
-    table_name = "messages"
+    database = os.getenv("POSTGRES_DB", "mydb")
+    schema = os.getenv("POSTGRES_SCHEMA", "sqs")
+    table_name = os.getenv("POSTGRES_TABLE_NAME", "messages")
 
     table_columns_datatype_map = {
         "id": "integer",
@@ -33,10 +33,12 @@ class Config:
     }
     primary_key = ("id", "departure", "destination")
 
-    dsn = f"postgresql://myuser:secret@localhost:5432/{database}"
+    dsn = os.getenv("DATABASE_URL")
+    queue_url = os.getenv("SQS_QUEUE_URL")
 
     def __post_init__(self):
-        self.queue_url = os.getenv(
-            "SQS_QUEUE_URL",
-            f"http://{self.aws_region}.localhost.localstack.cloud:4566/000000000042/test-queue",
-        )
+        if not self.dsn:
+            raise ValueError("Unable to find the postgres dsn url")
+
+        if not self.queue_url:
+            raise ValueError("Unable to find the SQS queue url")
