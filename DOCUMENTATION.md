@@ -28,14 +28,14 @@ Docker Compose version 5.1.1
   * Use the following command to set the environment variable:
 
     ```bash
-    $ export LOCALSTACK_AUTH_TOKEN=ls2mf-....
+    $ export LOCALSTACK_AUTH_TOKEN=<AUTH_TOKEN>
     ```
 
   * Or set it in `~/.bashrc` so it persists across sessions:
 
     ```bash
     $ cat >> ~/.bashrc
-    export LOCALSTACK_AUTH_TOKEN=ls2mf-....
+    export LOCALSTACK_AUTH_TOKEN=<AUTH_TOKEN>
     CTRL-Z
 
     $ source ~/.bashrc
