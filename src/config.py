@@ -28,10 +28,10 @@ class Config:
         "name": "text",
         "departure": "text",
         "destination": "text",
-        "start_date": "timestamp",
-        "end_date": "timestamp",
+        "start_timestamp": "timestamp",
+        "end_timestamp": "timestamp",
     }
-    primary_key = ("id", "departure", "destination")
+    primary_key = ("id", "departure", "destination", "start_timestamp")
 
     dsn = os.getenv("DATABASE_URL")
     queue_url = os.getenv("SQS_QUEUE_URL")

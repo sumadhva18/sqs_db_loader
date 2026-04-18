@@ -77,8 +77,8 @@ class DatabaseLoader:
                 record["name"],
                 leg["departure"],
                 leg["destination"],
-                leg["start_date"],
-                leg["end_date"],
+                leg["start_timestamp"],
+                leg["end_timestamp"],
             )
             for leg in record["trip"]
         ]

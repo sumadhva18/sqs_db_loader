@@ -59,14 +59,18 @@ class MessageProcessor:
             legs = message["route"]
             trip = []
             for leg in legs:
-                start_date = datetime.strptime(leg["started_at"], "%d/%m/%Y %H:%M:%S")
-                end_date = start_date + timedelta(minutes=leg["duration"])
+                start_timestamp = datetime.strptime(
+                    leg["started_at"], "%d/%m/%Y %H:%M:%S"
+                )
+                end_timestamp = start_timestamp + timedelta(minutes=leg["duration"])
                 trip.append(
                     {
                         "departure": leg["from"],
                         "destination": leg["to"],
-                        "start_date": start_date.strftime("%Y-%m-%d %H:%M:%S"),
-                        "end_date": end_date.strftime("%Y-%m-%d %H:%M:%S"),
+                        "start_timestamp": start_timestamp.strftime(
+                            "%Y-%m-%d %H:%M:%S"
+                        ),
+                        "end_timestamp": end_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
                     }
                 )
             return trip
@@ -79,10 +83,10 @@ class MessageProcessor:
                 {
                     "departure": locations[0]["location"],
                     "destination": locations[-1]["location"],
-                    "start_date": datetime.fromtimestamp(
+                    "start_timestamp": datetime.fromtimestamp(
                         locations[0]["timestamp"], tz=timezone.utc
                     ).strftime("%Y-%m-%d %H:%M:%S"),
-                    "end_date": datetime.fromtimestamp(
+                    "end_timestamp": datetime.fromtimestamp(
                         locations[-1]["timestamp"], tz=timezone.utc
                     ).strftime("%Y-%m-%d %H:%M:%S"),
                 }
@@ -101,8 +105,8 @@ class MessageProcessor:
                 {
                     "depaure": "A",
                     "destination": "D",
-                    "start_date": "2022-10-10 12:15:00",
-                    "end_date": "2022-10-10 13:55:00"
+                    "start_timestamp": "2022-10-10 12:15:00",
+                    "end_timestamp": "2022-10-10 13:55:00"
                 }
             ]
         }
