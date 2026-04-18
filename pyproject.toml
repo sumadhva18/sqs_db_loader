@@ -1,0 +1,10 @@
+[project]
+name = "sqs-db-loader"
+version = "0.1.0"
+description = "This is a python script that loads data from sqs to postgres db"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.42.89",
+    "psycopg2-binary>=2.9.11",
+]
