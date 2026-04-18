@@ -1,0 +1,92 @@
+version: "3.9"
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs
+      - DEBUG=1
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    command: >
+      bash -c "
+        set -e
+
+        echo 'Updating Packages' &&
+        apt-get update > /dev/null 2>&1 &&
+
+        echo 'Installing required system level packages' &&
+        apt-get install -y git > /dev/null 2>&1 &&
+
+        git clone https://github.com/sumadhva18/sqs_db_loader.git &&
+        
+        cp /sqs_db_loader/db_init_script/init.sql /docker-entrypoint-initdb.d/init.sql &&
+        docker-entrypoint.sh postgres
+      "
+  app:
+    image: python:3.12-slim
+    container_name: app
+    depends_on:
+      - postgres
+      - localstack
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/app_db
+      AWS_ENDPOINT_URL: http://localstack:4566
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: LSIAQAAAAAAVNCBMPNSG
+      AWS_SECRET_ACCESS_KEY: LSIAQAAAAAAVNCBMPNSG
+      SQS_QUEUE_URL: http://localstack:4566/000000000042/test-queue
+      POSTGRES_DB: app_db
+      POSTGRES_SCHEMA: sqs
+      POSTGRES_TABLE_NAME: trip_details
+    working_dir: /app
+    command: >
+      bash -c "
+        set -e
+        
+        echo 'Updating Packages' &&
+        apt-get update > /dev/null 2>&1 &&
+
+        echo 'Installing required system level packages' &&
+        apt-get install -y curl git > /dev/null 2>&1 &&
+
+        echo 'Cloning the SQS DB Loader repo' &&
+        git clone https://github.com/sumadhva18/sqs_db_loader.git
+
+        echo 'Installing uv package manager for python' &&
+        curl -Ls https://astral.sh/uv/install.sh | sh > /dev/null 2>&1 &&
+        export PATH=/root/.local/bin:$PATH &&
+
+        cd sqs_db_loader
+
+        echo 'Setting up python virtual environment' &&
+        uv sync &&
+
+
+        echo 'Creating and Populating the SQS queue' &&
+        chmod u+x ./message_generator_scripts/message_generator
+        ./message_generator_scripts/message_generator
+
+        echo 'Starting the SQS to DB loader script' &&
+        uv run /app/sqs_db_loader/src/main.py
+      "
+
+volumes:
+  postgres_data:
